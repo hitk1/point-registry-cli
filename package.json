@@ -1,0 +1,32 @@
+{
+  "name": "point-registry-cli",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/hitk1/point-registry-cli.git",
+  "author": "Luis Paulo Martins Degini <luispaulo.degini@gmail.com>",
+  "license": "MIT",
+  "engines": {
+    "node": "~22.14",
+    "yarn": "~1.22"
+  },
+  "scripts": {
+    "build": "yarn tsc --target ES2020 --experimentalDecorators --emitDecoratorMetadata",
+    "dev": "tsx ./src/index.ts",
+    "start": "node ./dist/index.js",
+    "db:migrate": "npx prisma migrate dev",
+    "db:init": "npx prisma migrate deploy"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.5.0",
+    "commander": "^13.1.0",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.4.7",
+    "inquirer": "^12.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.11",
+    "prisma": "^6.5.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}

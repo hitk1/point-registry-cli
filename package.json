@@ -6,7 +6,6 @@
   "author": "Luis Paulo Martins Degini <luispaulo.degini@gmail.com>",
   "license": "MIT",
   "engines": {
-    "node": "~22.14",
     "yarn": "~1.22"
   },
   "scripts": {
@@ -21,7 +20,9 @@
     "commander": "^13.1.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
-    "inquirer": "^12.5.0"
+    "inquirer": "^12.5.0",
+    "openai": "^4.89.0",
+    "ora": "^8.2.0"
   },
   "devDependencies": {
     "@types/node": "^22.13.11",

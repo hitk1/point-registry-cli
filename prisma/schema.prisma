@@ -14,3 +14,23 @@ model WorkEntries {
 
   @@map("work_entries")
 }
+
+model WorkLogs {
+  id              Int               @id @default(autoincrement())
+  project         String
+  created_at      DateTime
+  worklog_entries WorkLogsEntries[]
+
+  @@map("work_logs")
+}
+
+model WorkLogsEntries {
+  id                     Int      @id @default(autoincrement())
+  time_spent_description String
+  time_spent_seconds     Int
+  description            String
+  worklog_id             Int
+  worklog                WorkLogs @relation(fields: [worklog_id], references: [id])
+
+  @@map("work_log_entries")
+}

@@ -45,10 +45,25 @@ export class WorkEntriesService {
     async list() {
         const result = await database.workEntries.findMany({})
 
-        return result.map(item => ({
+        console.table(result.map(item => ({
             id: item.id,
             time: format(item.entry_date, 'dd/MM/yyyy - HH:mm'),
             type: item.type === eWorkEntris.IN ? 'Entrada' : 'Saida'
-        }))
+        })))
+    }
+
+    async deleteById(id?: string) {
+        if (!id) {
+            console.log('ID is a required argument')
+            return
+        }
+
+        await database.workEntries.delete({
+            where: {
+                id: Number(id)
+            }
+        })
+
+        console.log('Entry has been deleted')
     }
 }

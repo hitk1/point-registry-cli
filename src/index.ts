@@ -2,14 +2,16 @@ import 'dotenv/config'
 import './database'
 
 import { Command } from 'commander'
-import { WorkEntriesService } from './work-entries'
-import { WorkLogsService } from './work-log'
 import inquirer from 'inquirer'
 
+import { WorkEntriesService } from './work-entries'
+import { WorkLogsService } from './work-log'
+
 const system = new Command()
+const workLogSystem = new Command('worklog').description('Module for create worklog records')
+
 const workEntryService = new WorkEntriesService()
 const workLogService = new WorkLogsService()
-
 
 system
     .command('registry [hour]')
@@ -32,8 +34,8 @@ system
         await workEntryService.deleteById(id)
     })
 
-system
-    .command('worklog')
+workLogSystem
+    .command('create')
     .description('Uses AI to enhance feature extraction for a worklog')
     .action(async () => {
         const { prompt } = await inquirer.prompt([
@@ -46,5 +48,14 @@ system
 
         await workLogService.createWorkLog(prompt)
     })
+
+workLogSystem
+    .command('list [dateParam]')
+    .description('List Worklog data (Params: [today], [yest], [dd/MM/yyyy]')
+    .action(async (dateParams: any) => {
+        await workLogService.listWorkLog(dateParams)
+    })
+
+system.addCommand(workLogSystem)
 
 system.parse(process.argv)

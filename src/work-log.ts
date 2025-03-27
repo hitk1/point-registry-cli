@@ -1,7 +1,7 @@
 import OpenAI from "openai"
 import ora from 'ora'
 import { database } from "./repository"
-import { subDays } from "date-fns"
+import { subDays, format } from "date-fns"
 import { DateService } from "./utils"
 
 interface IRawExtractionFeaturesResult {
@@ -129,8 +129,8 @@ export class WorkLogsService {
         const result = await database.workLogs.findMany({
             where: {
                 created_at: {
-                    gte: this.dateService.setBeginDate(filterParam),
-                    lte: this.dateService.setEndDate(filterParam)
+                    gte: new Date(filterParam.setHours(0, 0, 0, 0,)),
+                    lte: new Date(filterParam.setHours(23, 59, 59, 999))
                 }
             },
             include: {
@@ -138,7 +138,13 @@ export class WorkLogsService {
             }
         })
 
-        console.table(result)
+        console.log('📊 WorkLog Entries:')
+        result.forEach((item, index) => {
+            console.log(`\n${index + 1}🔹 📂 Project name: ${item.project}\n`)
+            item.worklog_entries.forEach(entry => {
+                console.log(`  - 🕒 ${entry.description}`)
+            })
+        })
     }
 
     private buildPrompt(text: string) {

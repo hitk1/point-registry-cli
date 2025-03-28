@@ -1,7 +1,7 @@
 import OpenAI from "openai"
 import ora from 'ora'
 import { database } from "./repository"
-import { subDays, format } from "date-fns"
+import { subDays } from "date-fns"
 import { DateService } from "./utils"
 
 interface IRawExtractionFeaturesResult {

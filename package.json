@@ -10,13 +10,14 @@
   },
   "scripts": {
     "build": "yarn tsc --target ES2020 --experimentalDecorators --emitDecoratorMetadata",
-    "dev": "tsx  ./src/index.ts",
-    "start": "node ./dist/index.js",
+    "dev": "tsx --no-deprecation ./src/index.ts",
+    "start": "node --no-deprecation ./dist/index.js",
     "db:migrate": "npx prisma migrate dev",
     "db:init": "npx prisma migrate deploy"
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",
+    "chalk": "^5.4.1",
     "commander": "^13.1.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",

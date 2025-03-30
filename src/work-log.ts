@@ -85,7 +85,7 @@ export class WorkLogsService {
         spinner.stop()
         const now = new Date()
         const result = JSON.parse(response.choices[0].message.content!) as unknown as IRawExtractionFeaturesResult
-        
+
         await database.workLogs.create({
             data: {
                 project: result.project,
@@ -110,7 +110,7 @@ export class WorkLogsService {
         if (dateParam &&
             (!this.worklogListAvailableParams.includes(dateParam?.toLowerCase() || '') && !/^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/.test(dateParam || ''))
         ) {
-            console.log('Invalid List Parameter')
+            console.log(chalk.yellow('Invalid List Parameter'))
             return
         }
 
@@ -130,9 +130,13 @@ export class WorkLogsService {
 
         const result = await database.workLogs.findMany({
             where: {
-                created_at: {
-                    gte: new Date(filterParam.setHours(0, 0, 0, 0,)),
-                    lte: new Date(filterParam.setHours(23, 59, 59, 999))
+                worklog_entries: {
+                    every: {
+                        created_at: {
+                            gte: new Date(filterParam.setHours(0, 0, 0, 0,)),
+                            lte: new Date(filterParam.setHours(23, 59, 59, 999))
+                        }
+                    }
                 }
             },
             include: {

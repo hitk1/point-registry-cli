@@ -30,17 +30,18 @@ model WorkLogsEntries {
   time_spent_seconds     Int
   description            String
   worklog_id             Int
+  created_at             DateTime
   worklog                WorkLogs @relation(fields: [worklog_id], references: [id])
 
   @@map("work_log_entries")
 }
 
 model SingleEntries {
-  id         Int       @id @default(autoincrement())
-  project    String?
-  start_time DateTime
-  end_time   DateTime?
+  id          Int       @id @default(autoincrement())
+  project     String?
+  start_time  DateTime
+  end_time    DateTime?
   description String?
 
   @@map("single_work_log_entries")
-} 
+}

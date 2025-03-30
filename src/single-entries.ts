@@ -30,7 +30,7 @@ export class SingleEntries {
             }
         })
 
-        console.log(chalk.green('Single entry has been created:'), chalk.blue(result.id))
+        console.log(chalk.green('Single entry has been created:'))
     }
 
     async listPendings() {
@@ -44,11 +44,21 @@ export class SingleEntries {
     }
 
     async finishEntry(projectName: string, hour: Date, description: string) {
-        const pending = await database.singleEntries.findFirst({
-            where: {
-                end_time: null
-            }
-        })
+        const [
+            pending,
+            existingWorklog
+        ] = await Promise.all([
+            database.singleEntries.findFirst({
+                where: {
+                    end_time: null
+                }
+            }),
+            database.workLogs.findFirst({
+                where: {
+                    project: projectName
+                }
+            })
+        ])
 
         if (!pending) {
             console.log(chalk.yellow('There is no pending entry to be finished'))
@@ -65,6 +75,7 @@ export class SingleEntries {
 
         const timeSpentInterval = `${format(pending.start_time, "HH:mm")} às ${format(hour, "HH:mm")}`
         const timeSpentSeconds = Math.floor((hour.getTime() - pending.start_time.getTime()) / 1000)
+        let worklog = existingWorklog
 
         await database.$transaction(async transaction => {
             await transaction.singleEntries.update({
@@ -78,11 +89,25 @@ export class SingleEntries {
                 }
             })
 
-            const workLogProject = await transaction.workLogs.findFirst({
-                where: {
-                    project: projectName
+            if (!worklog)
+                worklog = await transaction.workLogs.create({
+                    data: {
+                        project: projectName,
+                        created_at: new Date(),
+                    }
+                })
+
+            await transaction.workLogsEntries.create({
+                data: {
+                    worklog_id: worklog!.id,
+                    time_spent_description: timeSpentDescription,
+                    time_spent_seconds: timeSpentSeconds,
+                    description: `${timeSpentInterval} - ${description} - ${timeSpentDescription}`,
+                    created_at: new Date()
                 }
             })
         })
+
+        console.log(chalk.green('Worklog has been created'))
     }
 }

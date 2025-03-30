@@ -3,6 +3,7 @@ import ora from 'ora'
 import { database } from "./repository"
 import { subDays } from "date-fns"
 import { DateService } from "./utils"
+import chalk from "chalk"
 
 interface IRawExtractionFeaturesResult {
     project: string,
@@ -18,7 +19,6 @@ export class WorkLogsService {
     private openaiClient: OpenAI
     private templatePrompt: string
     private worklogListAvailableParams: string[]
-    private dateService: DateService
 
     constructor() {
         this.openaiClient = new OpenAI()
@@ -71,7 +71,6 @@ export class WorkLogsService {
              -- 17:30 às 18:00 = Voltou com foco nas tarefas definidas (30m)
              `
         this.worklogListAvailableParams = ['today', 'yest']
-        this.dateService = new DateService()
     }
 
     async createWorkLog(text: string) {
@@ -84,22 +83,25 @@ export class WorkLogsService {
         })
 
         spinner.stop()
+        const now = new Date()
         const result = JSON.parse(response.choices[0].message.content!) as unknown as IRawExtractionFeaturesResult
+        
         await database.workLogs.create({
             data: {
                 project: result.project,
-                created_at: new Date(),
+                created_at: now,
                 worklog_entries: {
                     create: result.entries.map(item => ({
                         time_spent_description: item.time_spent_description,
                         time_spent_seconds: item.time_spent_seconds,
-                        description: `${item.interval_time_spent} - ${item.description} - ${item.time_spent_description}`
+                        description: `${item.interval_time_spent} - ${item.description} - ${item.time_spent_description}`,
+                        created_at: now
                     }))
                 }
             }
         })
 
-        console.log('Worklog has been created')
+        console.log(chalk.green('Worklog has been created'))
     }
 
     async listWorkLog(dateParam?: string) {

@@ -127,20 +127,29 @@ export class WorkLogsService {
                 Number(day)
             )
         }
+        const beginDate = new Date(filterParam.setHours(0, 0, 0, 0,))
+        const endDate = new Date(filterParam.setHours(23, 59, 59, 999))
 
         const result = await database.workLogs.findMany({
             where: {
                 worklog_entries: {
-                    every: {
+                    some: {
                         created_at: {
-                            gte: new Date(filterParam.setHours(0, 0, 0, 0,)),
-                            lte: new Date(filterParam.setHours(23, 59, 59, 999))
+                            gte: beginDate,
+                            lte: endDate,
                         }
                     }
                 }
             },
             include: {
-                worklog_entries: true,
+                worklog_entries: {
+                    where: {
+                        created_at: {
+                            gte: beginDate,
+                            lte: endDate,
+                        }
+                    }
+                }
             }
         })
 

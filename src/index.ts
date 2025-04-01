@@ -8,7 +8,7 @@ import { WorkEntriesService } from './work-entries'
 import { WorkLogsService } from './work-log'
 import { SingleEntries } from './single-entries'
 import chalk from 'chalk'
-import { capitalizeFirstLetter } from './utils'
+import { capitalizeFirstLetter, DateService } from './utils'
 
 const system = new Command()
 const workLogSystem = new Command('worklog').description('Module for create worklog records')
@@ -16,6 +16,7 @@ const workLogSystem = new Command('worklog').description('Module for create work
 const workEntryService = new WorkEntriesService()
 const workLogService = new WorkLogsService()
 const singleEntryService = new SingleEntries()
+const dateService = new DateService()
 
 system
     .command('registry [hour]')
@@ -107,7 +108,7 @@ workLogSystem
             }
         ])
 
-        const now = new Date()
+        const now = dateService.formatDate(new Date())
         if (hour_param && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(hour_param)) {
             const [hour, minutes] = hour_param.split(':')
 

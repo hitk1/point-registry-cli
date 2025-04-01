@@ -2,7 +2,6 @@ import OpenAI from "openai"
 import ora from 'ora'
 import { database } from "./repository"
 import { subDays } from "date-fns"
-import { DateService } from "./utils"
 import chalk from "chalk"
 
 interface IRawExtractionFeaturesResult {
@@ -35,13 +34,13 @@ export class WorkLogsService {
             Extração de dados:
              - Nome do projeto: Routing;
              - Horas de trabalho:
-             -- 09:00 às 09:30 = Analise de documentos - (30m)
-             -- 09:30 às 10:00 = Reunião diária com o time - (30m)
-             -- 10:00 às 12:00 = Codificação seguindo lista de tarefas - (2h)
-             -- 12:00 às 13:00 = Horário de almoço (1h)
-             -- 13:00 às 14:30 = Codificação seguindo lista de tarefas - (1h 30m)
-             -- 14:30 às 15:10 = Reunião de alinhamento com colega de trabalho - (40m)
-             -- 15:10 às 18:00 = Codificação seguindo lista de tarefas - (2h 50m)
+             -- 09:00 - 09:30 = Analise de documentos - (30m)
+             -- 09:30 - 10:00 = Reunião diária com o time - (30m)
+             -- 10:00 - 12:00 = Codificação seguindo lista de tarefas - (2h)
+             -- 12:00 - 13:00 = Horário de almoço (1h)
+             -- 13:00 - 14:30 = Codificação seguindo lista de tarefas - (1h 30m)
+             -- 14:30 - 15:10 = Reunião de alinhamento com colega de trabalho - (40m)
+             -- 15:10 - 18:00 = Codificação seguindo lista de tarefas - (2h 50m)
             
             2 -> "Iniciei o dia seguindo tarefas especificadas do TRem2, as 11:00 iniciou a daily e terminou na hora do almoço,
             Logo voltando do almoço, continue com a analise das tarefas e implementação das definições solicitadas, as 15:00 inicou uma call de alinhamento de expectativas do quarter para entregas que durou mais 1 hora
@@ -49,12 +48,12 @@ export class WorkLogsService {
             Extração de dados:
              - Nome do projeto: TRem2;
              - Horas de trabalho:
-             -- 09:00 às 11:00 = Codificação seguindo lista de tarefas - (2h)
-             -- 11:00 às 12:00 = Reunião diária com o time - (1h)
-             -- 12:00 às 13:00 = Horário de almoço (1h)
-             -- 13:00 às 15:00 = Codificação seguindo lista de tarefas - (2h)
-             -- 15:00 às 16:00 = Reunião de alinhamento de expectativas de entregas pro quarter - (1h)
-             -- 16:00 às 18:00 = Codificação seguindo lista de tarefas - (2h)
+             -- 09:00 - 11:00 = Codificação seguindo lista de tarefas - (2h)
+             -- 11:00 - 12:00 = Reunião diária com o time - (1h)
+             -- 12:00 - 13:00 = Horário de almoço (1h)
+             -- 13:00 - 15:00 = Codificação seguindo lista de tarefas - (2h)
+             -- 15:00 - 16:00 = Reunião de alinhamento de expectativas de entregas pro quarter - (1h)
+             -- 16:00 - 18:00 = Codificação seguindo lista de tarefas - (2h)
 
             3 -> "Comecei o dia com a análise e repriorização das tarefas do Trynfu até as 09:30 que iniciou a daily com o time com duração de 30m, logo após teve um reunião de refinamento de regra de negócio com o time,
             que durou mais 1 hora, o restante do tempo segui com o desenvolvimento das tarefas até a hora do almoço. Logo após o almoço, voltei pras tarefas novamente até as 16:00 que teve outra reunião de alinhamento
@@ -62,13 +61,13 @@ export class WorkLogsService {
             Extração de dados:
              - Nome do projeto: Trynfu;
              - Horas de trabalho:
-             -- 09:00 às 09:30 = Codificação seguindo lista de tarefas - (30m)
-             -- 10:00 às 11:00 = Reunião de refinamento de regra de negócio (1h)
-             -- 11:00 às 12:00 = Desenvolvimento das tarefas - (1h)
-             -- 12:00 às 13:00 = Horário de almoço (1h)
-             -- 13:00 às 16:00 = Continuação das tarefas (3h)
-             -- 16:00 às 17:30 = Reunião de alinhamento - (1h 30m)
-             -- 17:30 às 18:00 = Voltou com foco nas tarefas definidas (30m)
+             -- 09:00 - 09:30 = Codificação seguindo lista de tarefas - (30m)
+             -- 10:00 - 11:00 = Reunião de refinamento de regra de negócio (1h)
+             -- 11:00 - 12:00 = Desenvolvimento das tarefas - (1h)
+             -- 12:00 - 13:00 = Horário de almoço (1h)
+             -- 13:00 - 16:00 = Continuação das tarefas (3h)
+             -- 16:00 - 17:30 = Reunião de alinhamento - (1h 30m)
+             -- 17:30 - 18:00 = Voltou com foco nas tarefas definidas (30m)
              `
         this.worklogListAvailableParams = ['today', 'yest']
     }

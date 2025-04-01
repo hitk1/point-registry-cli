@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
 import { database } from './repository'
+import { DateService } from './utils'
 
 const eWorkEntris = {
     IN: 'in',
@@ -9,9 +10,16 @@ const eWorkEntris = {
 
 
 export class WorkEntriesService {
+    private dateService: DateService
+
+    constructor(){
+        this.dateService = new DateService()
+    }
+
     async create(params?: string) {
         try {
-            let now = new Date()
+            let now = this.dateService.formatDate(new Date())
+            
             if (params && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(params)) {
                 const [hour, minutes] = params.split(':')
 

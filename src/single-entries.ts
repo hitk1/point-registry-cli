@@ -1,10 +1,18 @@
 import chalk from "chalk";
-import { differenceInMinutes, format, parse } from 'date-fns'
+import { differenceInMinutes, format } from 'date-fns'
 import { database } from "./repository";
+import { DateService } from "./utils";
+import { WorkLogs } from "@prisma/client";
 
 export class SingleEntries {
+    private dateService: DateService
+
+    constructor() {
+        this.dateService = new DateService()
+    }
+
     async createSingleEntry(params?: string) {
-        const now = new Date()
+        const now = this.dateService.formatDate(new Date())
 
         if (params && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(params)) {
             const [hour, minutes] = params.split(':')
@@ -24,7 +32,7 @@ export class SingleEntries {
             return
         }
 
-        const result = await database.singleEntries.create({
+        await database.singleEntries.create({
             data: {
                 start_time: now
             }
@@ -46,18 +54,14 @@ export class SingleEntries {
     async finishEntry(projectName: string, hour: Date, description: string) {
         const [
             pending,
-            existingWorklog
+            [existingWorklog]
         ] = await Promise.all([
             database.singleEntries.findFirst({
                 where: {
                     end_time: null
                 }
             }),
-            database.workLogs.findFirst({
-                where: {
-                    project: projectName
-                }
-            })
+            database.$queryRaw`SELECT * FROM work_logs AS w WHERE LOWER(w.project) LIKE LOWER(${projectName})` as unknown as WorkLogs[]
         ])
 
         if (!pending) {
@@ -73,7 +77,7 @@ export class SingleEntries {
         if (hours > 0) timeSpentDescription += `${hours}h`
         if (minutes > 0) timeSpentDescription += ` ${minutes}m`
 
-        const timeSpentInterval = `${format(pending.start_time, "HH:mm")} às ${format(hour, "HH:mm")}`
+        const timeSpentInterval = `${format(pending.start_time, "HH:mm")} - ${format(hour, "HH:mm")}`
         const timeSpentSeconds = Math.floor((hour.getTime() - pending.start_time.getTime()) / 1000)
         let worklog = existingWorklog
 

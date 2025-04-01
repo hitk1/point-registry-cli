@@ -1,3 +1,5 @@
+import { add, Duration } from "date-fns"
+
 export class DateService {
     setBeginDate(date: Date = new Date()): Date {
         date.setDate(date.getDate() - 1)
@@ -44,6 +46,10 @@ export class DateService {
         }
 
         return now
+    }
+
+    addDate(date: Date, duration: Duration): Date {
+        return add(date, duration)
     }
 }
 

@@ -26,10 +26,10 @@ system
     })
 
 system
-    .command('list')
-    .description('List today records')
-    .action(async () => {
-        await workEntryService.list()
+    .command('list [dateParam]')
+    .description('List records (Params: [today, yest, week, month]')
+    .action(async (dateParams: any) => {
+        await workEntryService.list(dateParams)
     })
 
 system

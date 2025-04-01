@@ -1,4 +1,6 @@
 import { format } from 'date-fns'
+import chalk from 'chalk'
+
 import { database } from './repository'
 import { DateService } from './utils'
 
@@ -11,15 +13,17 @@ const eWorkEntris = {
 
 export class WorkEntriesService {
     private dateService: DateService
+    private listRecordsAvailableParams: string[]
 
-    constructor(){
+    constructor() {
         this.dateService = new DateService()
+        this.listRecordsAvailableParams = ['today', 'yest', 'week', 'month', 'last_month']
     }
 
     async create(params?: string) {
         try {
             let now = this.dateService.formatDate(new Date())
-            
+
             if (params && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(params)) {
                 const [hour, minutes] = params.split(':')
 
@@ -50,8 +54,64 @@ export class WorkEntriesService {
         }
     }
 
-    async list() {
-        const result = await database.workEntries.findMany({})
+    async list(dateParams?: string) {
+        let beginDate = new Date()
+        let endDate = new Date()
+        beginDate.setHours(0, 0, 0, 0)
+        endDate.setHours(23, 59, 59, 999)
+
+        switch (dateParams?.toLowerCase()) {
+            case null:
+                break
+            case 'today':
+                break
+            case 'yest':
+                beginDate = this.dateService.addDate(beginDate, { days: -1 })
+                endDate = this.dateService.addDate(endDate, { days: -1 })
+                break
+            case 'week':
+                const dayOfWeek = beginDate.getDay()
+
+                beginDate = this.dateService.addDate(beginDate, { days: dayOfWeek > 0 ? -dayOfWeek : 0 })
+                endDate = this.dateService.addDate(endDate, { days: dayOfWeek > 0 ? 6 - dayOfWeek : 6 })
+                break
+            case 'month':
+                beginDate = new Date(
+                    beginDate.getFullYear(),
+                    beginDate.getMonth(),
+                    1,
+                    0,
+                    0,
+                    0,
+                    0
+                )
+                break
+            case 'last_month':
+                beginDate = new Date(
+                    beginDate.getFullYear(),
+                    beginDate.getMonth() - 1,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0
+                )
+
+                this.dateService.addDate(endDate, { months: -1 })
+                break
+        }
+
+        const result = await database.workEntries.findMany({
+            where: {
+                entry_date: {
+                    gte: beginDate,
+                    lte: endDate
+                }
+            },
+            orderBy: {
+                entry_date: 'asc'
+            }
+        })
 
         console.table(result.map(item => ({
             id: item.id,
@@ -62,7 +122,7 @@ export class WorkEntriesService {
 
     async deleteById(id?: string) {
         if (!id) {
-            console.log('ID is a required argument')
+            console.log(chalk.yellow('ID is a required argument'))
             return
         }
 
@@ -72,6 +132,6 @@ export class WorkEntriesService {
             }
         })
 
-        console.log('Entry has been deleted')
+        console.log(chalk.green('Entry has been deleted'))
     }
 }
